@@ -1,0 +1,4 @@
+bar: foo {{name}}
+baz:
+    singular: 'I ate %s duck'
+    plural: 'I ate %s ducks'

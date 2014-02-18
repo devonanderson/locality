@@ -1,0 +1,26 @@
+{
+  "name": "locality",
+  "description": "i18n language support for Express",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devonanderson/locality.git"
+  },
+  "keywords": [
+    "1i8n",
+    "language",
+    "express",
+    "locale"
+  ],
+  "main": "./locality",
+  "dependencies": {
+    "underscore": "1.*",
+    "js-yaml": "3.*",
+    "mustache": "*",
+    "sprintf-js": "*",
+    "locale": "*"
+  },
+  "engines": {
+    "node": "0.10.*"
+  }
+}
