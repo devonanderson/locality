@@ -206,7 +206,7 @@ Locality.prototype.middleware = function () {
 
 	return function (req, res, next) {
 
-		req.i18n = new Locality(self);
+		req.locality = new Locality(self);
 		next();
 	}
 }
