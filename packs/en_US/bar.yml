@@ -1,4 +1,4 @@
-bar: foo {{name}}
+bar: Hello {{name}}
 baz:
-    singular: 'I ate %s duck'
-    plural: 'I ate %s ducks'
+    singular: 'I ate %d duck'
+    plural: 'I ate %d ducks'
