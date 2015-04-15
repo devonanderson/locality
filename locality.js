@@ -2,7 +2,8 @@ var fs = require('fs')
 ,		mustache = require('mustache')
 ,		locale = require('locale')
 ,		sprintf = require('sprintf-js').vsprintf
-,		yaml = require('js-yaml');
+,		yaml = require('js-yaml')
+,		cookie = require('cookie');
 
 function Locality(opts) {
 	var defaults = {
@@ -18,10 +19,10 @@ function Locality(opts) {
 		this.settings[i] = this.settings[i] || defaults[i];
 	}
 
+	locale.Locale['default'] = new locale.Locale(this.settings.defaultLocale);
+
 	this.supportedLocales = new locale.Locales(this.settings.locales);
 	this.catalog = this._loadLanguagePack();
-
-	this.setLocale(this.settings.defaultLocale);
 }
 
 Locality.prototype._loadLanguagePack = function () {
@@ -132,32 +133,31 @@ Locality.prototype._translate = function (string, args) {
 }
 
 Locality.prototype.setLocale = function(loc) {
-	if (typeof loc === 'string') {
-		this.currentLocale = loc;
+	var locales = new locale.Locales(loc);
+
+	this.currentLocale = locales.best(this.supportedLocales);
+}
+
+Locality.prototype.setLocaleFromHeaders = function (req) {
+	if(req.headers['accept-language']) {
+   	this.setLocale(req.headers['accept-language']);
 	}
 }
 
-Locality.prototype.setLocaleFromHeaders = function (headers) {
-	if(headers && headers['accept-language']) {
-   		var locales = new locale.Locales(headers['accept-language']);
-   		
-   		this.setLocale(locales.best(this.supportedLocales));
+Locality.prototype.setLocaleFromCookie = function (req, key) {
+	var headers = req.headers
+	,		locale = (headers.secureCookie && cookie.parse(headers.secureCookie)[key]) 
+							|| (headers.signedCookie && cookie.parse(headers.signedCookie)[key])
+							|| (headers.cookie && cookie.parse(headers.cookie)[key]);
+
+	if(locale) {
+		this.setLocale(locale);
 	}
 }
 
-Locality.prototype.setLocaleFromCookie = function (cookie, key) {
-	if (cookie && cookie[key]) {
-		var locales = new locale.Locales(cookie[key]);
-		
-		this.setLocale(locales.best(this.supportedLocales));
-	}
-}
-
-Locality.prototype.setLocaleFromQuery = function (query, key) {
-	if (query && query[key]) {
-		var locales = new locale.Locales(query[key]);
-		
-		this.setLocale(locales.best(this.supportedLocales));
+Locality.prototype.setLocaleFromQuery = function (req, key) {
+	if (req.query[key]) {
+		this.setLocale(req.query[key]);
 	}
 }
 
@@ -166,15 +166,17 @@ Locality.prototype.setLocaleFromSubdomain = function (domain) {
 		domain = domain.replace(/(http:\/\/|https:\/\/)/, '');
 
 		if(/^([^.]+)/.test(domain)) {
-			var locales = new locale.Locales(RegExp.$1);
-			
-			this.setLocale(locales.best(this.supportedLocales));
+			this.setLocale(locales.best(RegExp.$1));
 		}
 	}
 }
 
 Locality.prototype.getLocale = function () {
 	return this.currentLocale;
+}
+
+Locality.prototype.isLocaleSupported = function (loc) {
+	return this.supportedLocales.indexOf(loc) > -1;
 }
 
 Locality.prototype.__ = function () {

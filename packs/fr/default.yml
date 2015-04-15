@@ -1,0 +1,4 @@
+Hello {{name}}: 'Bonjour {{name}}'
+I ate %s duck:
+    singular: 'Je ai mange %s canard'
+    plural: 'Je ai mange %d canards'

@@ -12,7 +12,9 @@ var app = express()
 ,		bodyParser = require('body-parser')
 ,		methodOverride = require('method-override')
 
-var i18n = new Locality();
+var i18n = new Locality({
+	locales: ['en_US', 'fr']
+});
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -26,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function (err, req, res, next) { });
 
 app.get('/', function(req, res) {	
+
+	req.i18n.setLocaleFromQuery(req, 'lang');
 
   res.render('index', { 
   	title: 'Express',
