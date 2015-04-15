@@ -1,26 +1,27 @@
 {
   "name": "locality",
-  "description": "i18n language support for Express",
-  "version": "0.0.1",
+  "description": "i18n language support for Express, using YAML based configuration",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/devonanderson/locality.git"
   },
   "keywords": [
-    "1i8n",
+    "i18n",
     "language",
     "express",
-    "locale"
+    "locale",
+    "yaml"
   ],
   "main": "./locality",
   "dependencies": {
     "underscore": "1.*",
     "js-yaml": "3.*",
-    "mustache": "*",
-    "sprintf-js": "*",
-    "locale": "*"
+    "mustache": "2.*",
+    "sprintf-js": "1.*",
+    "locale": "0.*"
   },
   "engines": {
-    "node": "0.10.*"
+    "node": "0.12.*"
   }
 }
