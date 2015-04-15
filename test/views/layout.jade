@@ -1,0 +1,29 @@
+doctype 
+html
+	head
+	title= title
+	link(rel='stylesheet', href='/stylesheets/style.css')
+	script(src='/socket.io/socket.io.js')
+	script().
+		var socket = io.connect('http://localhost:3000');
+
+		socket.on('ionize:connect', function () { //ionize has it's own connect event, which may be fired after the Socket.io one
+			console.log('Ionize: connected with ionize:connect');
+
+			socket.emit('test:success', {
+				data: 'This is some data'
+			});
+
+			socket.emit('test:triggerStart');
+			socket.emit('test:error');
+		});
+
+		socket.on('success', function (req) {
+			document.getElementById('message').innerHTML = req.message;
+		});
+
+		socket.on('triggered', function (req) {
+			console.log(req.message);
+		});
+body
+	block content

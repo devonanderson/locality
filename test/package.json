@@ -1,0 +1,14 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "4.*",
+    "body-parser": "1.*",
+    "method-override": "2.*",
+    "jade": "1.*"
+  }
+}

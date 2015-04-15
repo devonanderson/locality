@@ -96,19 +96,18 @@ Locality.prototype._arguments = function (args, plural) {
 		file = this.settings.defaultFile;
 	}
 
-	if(plural) {
+	if(plural && typeof args[args.length - 1] === 'number') {
 		count = args.pop();
 	}
 
-	if(!args[0]) {
-		format = count;
-		count = 1
+	if(!args.length) {
+		format = [count];
 	}
 	else if(typeof args[0] === 'object') {
 		object = args[0];
 	}
 	else {
-		format = args[0];
+		format = args;
 	}
 
 	return {
@@ -122,7 +121,7 @@ Locality.prototype._arguments = function (args, plural) {
 
 Locality.prototype._translate = function (string, args) {
 	if((/{{.*}}/).test(string) && args.object) {
-		string = mustache.render(string, args.named);
+		string = mustache.render(string, args.object);
 	}
 
 	if((/%[Sscfdi0-9]/).test(string) && args.format) {
@@ -190,14 +189,14 @@ Locality.prototype.__ = function () {
 
 	if(typeof string === 'object') {
 		string = string.singular;
-	} 
+	}
 
 	return this._translate(string, args);
 }
 
 Locality.prototype.__p = function () {
 	var args = this._arguments(arguments, true)
-	,		locale = this.getLocale
+	,		locale = this.getLocale()
 	,		file = args.file
 	,		key = args.key;
 

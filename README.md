@@ -65,7 +65,7 @@ var route = function (req, res, next) {
 	req.i18n.__('foo.yml', 'bar %s', 'baz'); //Looks in foo.yml and returns bar baz
 
 	//Pluralized translations, definitions needs to have a "singular" and "plural" set of keys.
-	req.i18n.__p('I ate %d ducks', 2); //I ate 2 ducks
-	req.i18n.__p('I ate %d ducks', 'a fat', 1); //I ate a fat duck
+	req.i18n.__p('I ate %s duck', 2); //I ate 2 ducks
+	req.i18n.__p('I ate %s duck', 'a', 1); //I ate a duck
 }
 ```
