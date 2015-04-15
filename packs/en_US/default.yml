@@ -1,4 +1,4 @@
-bar: Hello {{name}}
-baz:
+Hello {{name}}: 'Hello {{name}}'
+I ate %d ducks:
     singular: 'I ate %d duck'
     plural: 'I ate %d ducks'

@@ -15,7 +15,6 @@
   ],
   "main": "./locality",
   "dependencies": {
-    "underscore": "1.*",
     "js-yaml": "3.*",
     "mustache": "2.*",
     "sprintf-js": "1.*",

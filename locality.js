@@ -1,34 +1,37 @@
 var fs = require('fs')
-,		_ = require('underscore')
 ,		mustache = require('mustache')
 ,		locale = require('locale')
 ,		sprintf = require('sprintf-js').vsprintf
 ,		yaml = require('js-yaml');
 
 function Locality(opts) {
-
 	var defaults = {
-		path: __dirname + '/packs'
-	,	locale: 'en_US'
-	,	supported: ['en_US']
+			path: __dirname + '/packs'
+	,		defaultLocale: 'en_US'
+	,		defaultFile: 'default.yml'
+	,		locales: ['en_US']
 	};
 
-	this.settings = _.extend(defaults, opts);
-	this.supported = new locale.Locales(this.settings.supported);
-	this.lang = this._loadLanguagePack();
+	this.settings = opts || {};
 
-	this.setLocale(this.settings.locale);
+	for(var i in defaults) {
+		this.settings[i] = this.settings[i] || defaults[i];
+	}
+
+	this.supportedLocales = new locale.Locales(this.settings.locales);
+	this.catalog = this._loadLanguagePack();
+
+	this.setLocale(this.settings.defaultLocale);
 }
 
 Locality.prototype._loadLanguagePack = function () {
-
 	var lang = {};
 		
 	try {
 		var dirs = fs.readdirSync(this.settings.path);
 	} 
 	catch (e) {
-		console.error('Locality: Could not read language pack directory: ' + this.settings.path);
+		console.error('Locality: Could not read language pack directory ' + this.settings.path);
 		throw e;
 	}
 	
@@ -37,7 +40,7 @@ Locality.prototype._loadLanguagePack = function () {
 			var isDir = fs.lstatSync(this.settings.path + '/' + dirs[i]).isDirectory();
 		}
 		catch (e) {
-			console.error('Locality: Could not read language pack directory: ' + this.settings.path);
+			console.error('Locality: Could not read language pack directory ' + this.settings.path + '/' + dirs[i]);
 		}
 
 		if(isDir) {
@@ -48,7 +51,7 @@ Locality.prototype._loadLanguagePack = function () {
 				var definitions = fs.readdirSync(this.settings.path + '/' + dirs[i]);
 			} 
 			catch (e) {
-				console.error('Locality: Could not read language pack directory: ' + this.settings.path);
+				console.error('Locality: Could not read language pack directory ' + this.settings.path + '/' + dirs[i]);
 				throw e;
 			}
 
@@ -59,7 +62,7 @@ Locality.prototype._loadLanguagePack = function () {
 					var langDef = yaml.safeLoad(fs.readFileSync(this.settings.path + '/' + dirs[i] + '/' + definitions[j], 'utf8'));
 				} 
 				catch(e) {
-					console.error('Locality: Language definition: ' + definitions[j] + ' contains errors. Skipping.');
+					console.error('Locality: Language definition file ' + this.settings.path + '/' + dirs[i] + '/' + definitions[j] + ' contains errors. Skipping...');
 					console.error(e);
 
 					continue;
@@ -76,12 +79,22 @@ Locality.prototype._loadLanguagePack = function () {
 }
 
 Locality.prototype._arguments = function (args, plural) {
-	
-	var args = Array.prototype.slice.call(args, 0)
-	,		keyPath = args.shift().split('.')
-	,		count = null
+	var file
+	,		key
+	,		count = 1
 	,		object
 	,		format;
+
+	args = Array.prototype.slice.call(args, 0);
+	file = args.shift();
+
+	if(file.indexOf('.yml') > -1) {
+		key = args.shift();
+	}
+	else {
+		key = file;
+		file = this.settings.defaultFile;
+	}
 
 	if(plural) {
 		count = args.pop();
@@ -89,6 +102,7 @@ Locality.prototype._arguments = function (args, plural) {
 
 	if(!args[0]) {
 		format = count;
+		count = 1
 	}
 	else if(typeof args[0] === 'object') {
 		object = args[0];
@@ -98,8 +112,8 @@ Locality.prototype._arguments = function (args, plural) {
 	}
 
 	return {
-		key: keyPath[0]
-	,	def: keyPath[1]
+		file: file.replace('.yml', '')
+	,	key: key
 	,	object: object
 	,	format: format
 	,	count: count
@@ -107,7 +121,6 @@ Locality.prototype._arguments = function (args, plural) {
 }
 
 Locality.prototype._translate = function (string, args) {
-
 	if((/{{.*}}/).test(string) && args.object) {
 		string = mustache.render(string, args.named);
 	}
@@ -121,7 +134,7 @@ Locality.prototype._translate = function (string, args) {
 
 Locality.prototype.setLocale = function(loc) {
 	if (typeof loc === 'string') {
-		this.settings.locale = loc;
+		this.currentLocale = loc;
 	}
 }
 
@@ -129,7 +142,7 @@ Locality.prototype.setLocaleFromHeaders = function (headers) {
 	if(headers && headers['accept-language']) {
    		var locales = new locale.Locales(headers['accept-language']);
    		
-   		this.setLocale(locales.best(this.supported));
+   		this.setLocale(locales.best(this.supportedLocales));
 	}
 }
 
@@ -137,7 +150,7 @@ Locality.prototype.setLocaleFromCookie = function (cookie, key) {
 	if (cookie && cookie[key]) {
 		var locales = new locale.Locales(cookie[key]);
 		
-		this.setLocale(locales.best(this.supported));
+		this.setLocale(locales.best(this.supportedLocales));
 	}
 }
 
@@ -145,7 +158,7 @@ Locality.prototype.setLocaleFromQuery = function (query, key) {
 	if (query && query[key]) {
 		var locales = new locale.Locales(query[key]);
 		
-		this.setLocale(locales.best(this.supported));
+		this.setLocale(locales.best(this.supportedLocales));
 	}
 }
 
@@ -156,25 +169,24 @@ Locality.prototype.setLocaleFromSubdomain = function (domain) {
 		if(/^([^.]+)/.test(domain)) {
 			var locales = new locale.Locales(RegExp.$1);
 			
-			this.setLocale(locales.best(this.supported));
+			this.setLocale(locales.best(this.supportedLocales));
 		}
 	}
 }
 
 Locality.prototype.getLocale = function () {
-	return this.settings.locale;
+	return this.currentLocale;
 }
 
 Locality.prototype.__ = function () {
-
 	var args = this._arguments(arguments, false)
-	,		locale = this.settings.locale
-	,		key = args.key
-	,		def = args.def;
+	,		locale = this.getLocale()
+	,		file = args.file
+	,		key = args.key;
 
-	if(!this.lang[locale] || !this.lang[locale][key] || !this.lang[locale][key][def]) return;
+	if(!this.catalog[locale] || !this.catalog[locale][file] || !this.catalog[locale][file][key]) return;
 	
-	var string = this.lang[locale][key][def];
+	var string = this.catalog[locale][file][key];
 
 	if(typeof string === 'object') {
 		string = string.singular;
@@ -184,28 +196,27 @@ Locality.prototype.__ = function () {
 }
 
 Locality.prototype.__p = function () {
-
 	var args = this._arguments(arguments, true)
-	,		locale = this.settings.locale
-	,		key = args.key
-	,		def = args.def;
+	,		locale = this.getLocale
+	,		file = args.file
+	,		key = args.key;
 
-	if(!this.lang[locale] || !this.lang[locale][key] || !this.lang[locale][key][def]) return;
+	if(!this.catalog[locale] || !this.catalog[locale][file] || !this.catalog[locale][file][key]) return;
 
-	var string = this.lang[locale][key][def].plural;
+	var string = this.catalog[locale][file][key].plural;
 
 	if(args.count === 1) {
-		string = this.lang[locale][key][def].singular;
+		string = this.catalog[locale][file][key].singular;
 	}
 
 	return this._translate(string, args);
 }
 
 Locality.prototype.middleware = function () {
-
 	var self = this;
 
 	return function (req, res, next) {
+		
 		req.i18n = self;
 		next();
 	}

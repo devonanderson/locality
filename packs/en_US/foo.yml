@@ -1,1 +1,1 @@
-foo: bar %s
+bar %s: 'bar %s'
