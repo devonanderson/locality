@@ -35,6 +35,7 @@ app.get('/', function(req, res) {
   	title: 'Express',
   	greeting: req.i18n.__('Hello {{name}}', { name: 'Devon Anderson' }), 
   	file: req.i18n.__('foo.yml', 'bar %s', 'baz'),
+  	zero: req.i18n.__p('I ate %s duck', 0),
   	singular: req.i18n.__p('I ate %s duck', 'a', 1),
   	plural: req.i18n.__p('I ate %s duck', 2)
   });

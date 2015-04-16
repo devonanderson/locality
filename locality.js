@@ -23,6 +23,8 @@ function Locality(opts) {
 
 	this.supportedLocales = new locale.Locales(this.settings.locales);
 	this.catalog = this._loadLanguagePack();
+
+	this.setLocale(this.settings.defaultLocale);
 }
 
 Locality.prototype._loadLanguagePack = function () {
@@ -200,14 +202,22 @@ Locality.prototype.__p = function () {
 	var args = this._arguments(arguments, true)
 	,		locale = this.getLocale()
 	,		file = args.file
-	,		key = args.key;
+	,		key = args.key
+	,		string;
 
 	if(!this.catalog[locale] || !this.catalog[locale][file] || !this.catalog[locale][file][key]) return;
 
-	var string = this.catalog[locale][file][key].plural;
+	var def = this.catalog[locale][file][key];
 
-	if(args.count === 1) {
-		string = this.catalog[locale][file][key].singular;
+	if(def[args.count]) {
+		string = def[args.count];
+	}
+	else {
+		string = def.plural;
+
+		if(args.count === 1) {
+			string = def.singular;
+		}
 	}
 
 	return this._translate(string, args);

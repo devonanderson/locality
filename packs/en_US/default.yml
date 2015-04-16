@@ -1,4 +1,5 @@
 Hello {{name}}: 'Hello {{name}}'
 I ate %s duck:
+    0: 'I ate no ducks'
     singular: 'I ate %s duck'
     plural: 'I ate %d ducks'

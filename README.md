@@ -14,8 +14,10 @@ First you must define your language packs. Language packs are directories named 
 en_US/default.yml //en_US is the locale and bar is the namespace
 
 Hello {{name}}: 'Hello {{name}}'' //Locality supports Handlebars variables
+//Locality supports pluralization
 I ate %s duck:
-	singular: 'I ate %s duck' //Locality supports string formatting as well as singular and pluralized strings
+	0: 'I ate no ducks' //You can provide number based keys which Locality will look for first, this helps with languages like Russian that have multiple types of pluralization
+	singular: 'I ate %s duck' //Locality supports string formatting with sprintf-js
 	plural: 'I ate %d ducks'
 
 en_US/foo.yml
@@ -64,7 +66,8 @@ var route = function (req, res, next) {
 	req.i18n.__('Hello {{name}}', { name: 'Devon Anderson' }); //Looks in the default file (default.yml) returns Hello Devon Anderson
 	req.i18n.__('foo.yml', 'bar %s', 'baz'); //Looks in foo.yml and returns bar baz
 
-	//Pluralized translations, definitions needs to have a "singular" and "plural" set of keys.
+	//Pluralized translations, definitions needs to have a "singular" and "plural" set of keys, and can provide options number based keys.
+	req.i18n.__p('I ate %s duck', 0); //I ate no ducks
 	req.i18n.__p('I ate %s duck', 2); //I ate 2 ducks
 	req.i18n.__p('I ate %s duck', 'a', 1); //I ate a duck
 }
