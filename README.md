@@ -9,7 +9,7 @@ First you must define your language packs. Language packs are directories named 
 
 ```
 /packs //The default language pack directory
-en_US/default.yml //en_US is the locale and bar is the namespace
+en_US/default.yml //en_US is the locale and default is the namespace
 
 Hello {{name}}: 'Hello {{name}}'' //Locality supports Handlebars variables
 //Locality supports pluralization
