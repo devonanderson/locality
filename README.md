@@ -1,9 +1,7 @@
 Locality
 ========
 
-Locality adds i18n support to [Express](http://github.com/visionmedia/express). It exposes middleware that can be added to the Express middleware stack. 
-
-Locality uses YAML configuration files to define it's language packs. 
+Locality adds i18n support to [Express](http://github.com/visionmedia/express) by exposing middleware that can be added to the Express middleware stack. Locality language packs are written in [YAML](http://yaml.org/), which is a human friendly data serialization language. 
 
 ##Definitions
 
